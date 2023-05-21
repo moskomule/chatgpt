@@ -39,7 +39,7 @@ while True:
             results = openai.ChatCompletion.create(model=model, messages=messages)
 
         for result in results['choices']:
-            st.write("▶assistant's reply")
+            st.write(f"▶assistant's reply {key}")
             st.write(result["message"]["content"])
             messages.append({"role": "assistant", "content": result["message"]["content"]})
             st.session_state.messages.append({"role": "assistant", "content": result["message"]["content"]})
