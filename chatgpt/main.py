@@ -1,48 +1,73 @@
 import json
-import warnings
 
 import openai
 import streamlit as st
 
 
-def message_too_long(messages, max_length):
+# utility functions
+def message_too_long(messages: list[dict[str, str]], max_length: int) -> bool:
     length = sum([len(message["content"]) for message in messages])
     return length > max_length
 
 
+def clear_history():
+    st.session_state.generated = []
+    st.session_state.past = []
+    st.session_state.messages = []
+    st.session_state.user_text = ""
+
+
+def show_text_input():
+    st.text_area(label="chat with GPT:", value=st.session_state.user_text, key="user_text")
+
+
+def chat(model_name: str, messages: list[dict[str, str]]) -> dict:
+    return openai.ChatCompletion.create(model=model_name, messages=messages)
+
+
+def show_chat(response: str, user_text: str):
+    if response not in st.session_state.generated:
+        st.session_state.past.append(user_text)
+        st.session_state.generated.append(response)
+    if st.session_state.generated:
+        for i, (past, generated) in enumerate(zip(st.session_state.generated, st.session_state.past)):
+            st.write(f"user: {past}")
+            st.markdown(f"assistant: {generated}")
+
+
+def show_conversation(model_name: str, system_input: str):
+    if len(st.session_state.messages) > 0:
+        st.session_state.messages.append({"role": "user", "content": st.session_state.user_text})
+    else:
+        st.session_state.messages = [{"role": "system", "content": system_input},
+                                     {"role": "user", "content": st.session_state.user_text}]
+    response = chat(model_name, st.session_state.messages)["choices"][0]["message"]["content"]
+    if response:
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        show_chat(response, st.session_state.user_text)
+        st.divider()
+
+
 st.title("ChatGPT")
+
+# initialize
+if "generated" not in st.session_state:
+    st.session_state.generated = []
+if "past" not in st.session_state:
+    st.session_state.past = []
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "user_text" not in st.session_state:
+    st.session_state.user_text = ""
 
 with st.expander("system settings"):
     system_input = st.text_input("inputs to system", "You are a helpful assistant to support researchers.")
-    model = st.selectbox("GPT backend", ("gpt-3.5-turbo", "gpt-4-0314", "gpt-4-32k-0314"))
+    model_name = st.selectbox("GPT backend", ("gpt-3.5-turbo", "gpt-4-0314", "gpt-4-32k-0314"))
     history_length = st.text_input("Max number of characters in history", 40_000)
 
-messages = [{"role": "system", "content": system_input}]
-if 'messages' not in st.session_state:
-    st.session_state.messages = [{"role": "system", "content": system_input}]
 st.download_button("save chat", json.dumps(st.session_state.messages), mime="application/json")
 
-input = st.text_area("▷user's input", disabled=len(st.session_state.messages) > 1)
-key = 0
-
-while True:
-
-    if len(input) > 0:
-        messages.append({"role": "user", "content": input})
-        st.session_state.messages.append({"role": "user", "content": input})
-
-        with st.spinner("please wait..."):
-            while message_too_long(messages, int(history_length)):
-                # to keep system message (index=0)
-                warnings.warn('message history is too long, truncating...')
-                messages.pop(1)
-            results = openai.ChatCompletion.create(model=model, messages=messages)
-
-        for result in results['choices']:
-            st.write(f"▶assistant's reply {key}")
-            st.write(result["message"]["content"])
-            messages.append({"role": "assistant", "content": result["message"]["content"]})
-            st.session_state.messages.append({"role": "assistant", "content": result["message"]["content"]})
-
-        input = st.text_area("▷user's input", key=key)
-        key += 1
+if st.session_state.user_text:
+    show_conversation(model_name, system_input)
+    st.session_state.user_text = ""
+show_text_input()

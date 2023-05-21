@@ -9,5 +9,5 @@
 
 ```
 pipx install hatch
-OPENAI_API_KEY=xxx hatch run build 
+OPENAI_API_KEY=xxx hatch run app
 ```

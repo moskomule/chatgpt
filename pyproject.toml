@@ -32,7 +32,7 @@ dynamic = ["version"]
 PIP_EXTRA_INDEX_URL = "https://pypi.org/simple/"
 
 [tool.hatch.envs.default.scripts]
-build = "python -m streamlit run chatgpt/main.py"
+app = "python -m streamlit run chatgpt/main.py"
 
 [project.urls]
 Documentation = "https://moskomule.github.io/chatgpt"
