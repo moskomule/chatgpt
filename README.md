@@ -1,5 +1,3 @@
-
-
 # chatgpt
 
 **This project is work in progress**
@@ -10,11 +8,6 @@
 ## Installation
 
 ```
-hatch create env
-```
-
-or
-
-```
-pip install -U -e .
+pipx install hatch
+OPENAI_API_KEY=xxx hatch run build 
 ```

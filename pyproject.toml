@@ -20,12 +20,19 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
 ]
 dependencies = [
-    "rich"
+    "rich",
+    "openai",
+    "streamlit",
+    "ipython",
+    "watchdog"
 ]
 dynamic = ["version"]
 
 [tool.hatch.envs.default.env-vars]
 PIP_EXTRA_INDEX_URL = "https://pypi.org/simple/"
+
+[tool.hatch.envs.default.scripts]
+build = "python -m streamlit run chatgpt/main.py"
 
 [project.urls]
 Documentation = "https://moskomule.github.io/chatgpt"
@@ -34,22 +41,6 @@ Source = "https://github.com/moskomule/chatgpt"
 
 [tool.hatch.version]
 path = "chatgpt/__about__.py"
-
-[tool.hatch.envs.tests]
-dependencies = [
-    "pytest",
-]
-
-[[tool.hatch.envs.test.matrix]]
-python = ["310", ]
-
-[tool.hatch.envs.docs]
-extra-dependencies = [
-    "mkdocs-material",
-    "mkdocstrings[python]"
-]
-[tool.hatch.envs.docs.scripts]
-build = "mkdocs build --clean --strict"
 
 [tool.hatch.build.targets.sdist]
 exclude = [
