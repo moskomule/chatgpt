@@ -72,7 +72,6 @@ if "current_user_text" not in st.session_state:
 with st.expander("System settings"):
     system_input = st.text_input("inputs to system", "You are a helpful assistant to support researchers.")
     model_name = st.selectbox("GPT backend", ("gpt-3.5-turbo", "gpt-4-0314", "gpt-4-32k-0314"))
-    history_length = st.text_input("Max number of characters in history", 40_000)
 
 with st.expander("Debug info"):
     st.write(st.session_state.messages)
