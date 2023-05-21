@@ -22,7 +22,8 @@ def show_text_input():
 
 
 def chat(model_name: str, messages: list[dict[str, str]]) -> dict:
-    return openai.ChatCompletion.create(model=model_name, messages=messages)
+    with st.spinner("please wait..."):
+        return openai.ChatCompletion.create(model=model_name, messages=messages)
 
 
 def show_chat(response: str, user_text: str):
